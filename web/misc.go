@@ -1,0 +1,73 @@
+package main
+
+import (
+	"bytes"
+	"github.com/labbsr0x/goh/gohtypes"
+	"github.com/labbsr0x/whisper-client/client"
+	"html/template"
+	"net/http"
+	"time"
+)
+
+const (
+	basePath          = "./assets/html/"
+	homePageFile      = "home.html"
+	dashboardPageFile = "dashboard.html"
+)
+
+// writePage loads a page using templates
+func writePage(w http.ResponseWriter, basePath, pageName string, page interface{}) {
+	buf := new(bytes.Buffer)
+	content := template.Must(template.ParseFiles(basePath + pageName))
+
+	err := content.Execute(buf, page)
+	gohtypes.PanicIfError("Unable to load page", http.StatusInternalServerError, err)
+
+	_, err = w.Write(buf.Bytes())
+	gohtypes.PanicIfError("Unable to render", http.StatusInternalServerError, err)
+}
+
+// getWhisperClient initiate the whisper client
+func getWhisperClient() *client.WhisperClient {
+	clientID := "client"
+	clientSecret := "secret"
+	scopes := []string{"openid offline"}
+	redirectURI := "http://localhost:8001/dashboard" // where it should go when finishing authentication
+	whisperURL := "http://localhost:7070"            // whisper path for communication
+
+	return new(client.WhisperClient).InitFromParams(whisperURL, clientID, clientSecret, redirectURI, scopes)
+}
+
+// getWhisperToken retrieve token to be used for authentication inside whisper
+func getWhisperToken(whisper *client.WhisperClient) string {
+	token, err := whisper.CheckCredentials()
+	if err != nil {
+		panic("Unable to connect to whisper client")
+	}
+
+	tokenString := whisper.GetTokenAsJSONStr(token)
+
+	if tokenString == "" {
+		panic("Unable to extract token")
+	}
+
+	return tokenString
+}
+
+// setHydraCookie set an cookie named HAIL_HYDRA
+func setHydraCookie (w http.ResponseWriter, value string) {
+	http.SetCookie(w, &http.Cookie{
+		Name:  "HAIL_HYDRA",
+		Value: value,
+		Expires: time.Now().Add(7 * 24 * time.Hour),
+	})
+}
+
+// removeHydraCookie remove the cookie named HAIL_HYDRA
+func removeHydraCookie (w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:  "HAIL_HYDRA",
+		Value: "",
+		Expires: time.Unix(0, 0),
+	})
+}
