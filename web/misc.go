@@ -2,11 +2,12 @@ package main
 
 import (
 	"bytes"
-	"github.com/labbsr0x/goh/gohtypes"
-	"github.com/labbsr0x/whisper-client/client"
 	"html/template"
 	"net/http"
 	"time"
+
+	"github.com/labbsr0x/goh/gohtypes"
+	"github.com/labbsr0x/whisper-client/client"
 )
 
 const (
@@ -32,10 +33,11 @@ func getWhisperClient() *client.WhisperClient {
 	clientID := "client"
 	clientSecret := "secret"
 	scopes := []string{"openid offline"}
-	redirectURI := "http://localhost:8001/dashboard" // where it should go when finishing authentication
-	whisperURL := "http://localhost:7070"            // whisper path for communication
+	loginRedirectURI := "http://localhost:8001/dashboard"  // where it should go when finishing authentication
+	logoutRedirectURI := "http://localhost:8001/dashboard" // where it should go when finishing deauthentication
+	whisperURL := "http://localhost:7070"                  // whisper path for communication
 
-	return new(client.WhisperClient).InitFromParams(whisperURL, clientID, clientSecret, redirectURI, scopes)
+	return new(client.WhisperClient).InitFromParams(whisperURL, clientID, clientSecret, loginRedirectURI, logoutRedirectURI, scopes)
 }
 
 // getWhisperToken retrieve token to be used for authentication inside whisper
@@ -55,19 +57,19 @@ func getWhisperToken(whisper *client.WhisperClient) string {
 }
 
 // setHydraCookie set an cookie named HAIL_HYDRA
-func setHydraCookie (w http.ResponseWriter, value string) {
+func setHydraCookie(w http.ResponseWriter, value string) {
 	http.SetCookie(w, &http.Cookie{
-		Name:  "HAIL_HYDRA",
-		Value: value,
+		Name:    "HAIL_HYDRA",
+		Value:   value,
 		Expires: time.Now().Add(7 * 24 * time.Hour),
 	})
 }
 
 // removeHydraCookie remove the cookie named HAIL_HYDRA
-func removeHydraCookie (w http.ResponseWriter) {
+func removeHydraCookie(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:  "HAIL_HYDRA",
-		Value: "",
+		Name:    "HAIL_HYDRA",
+		Value:   "",
 		Expires: time.Unix(0, 0),
 	})
 }

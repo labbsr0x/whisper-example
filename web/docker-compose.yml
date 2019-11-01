@@ -1,0 +1,88 @@
+# docker stack deploy -c docker-compose.yml whisper
+version: '3.5'
+
+services:
+
+  whisper:
+    build: .
+    image: labbsr0x/whisper:latest
+    depends_on:
+      - mysqld-whisper
+      - hydra
+    ports:
+      - "7070:7070"
+    environment:
+      - WHISPER_PORT=7070
+      - WHISPER_LOG_LEVEL=debug
+      - WHISPER_HYDRA_ADMIN_URL=http://hydra:4445/
+      - WHISPER_HYDRA_PUBLIC_URL=http://hydra:4444/
+      - WHISPER_SECRET_KEY=uhSunsodnsuBsdjsbds
+      - WHISPER_DATABASE_URL=mysql://root:secret@tcp(mysqld-whisper:3306)/whisper?charset=utf8mb4&parseTime=True&loc=Local
+    restart: on-failure
+
+  hydra-migrate:
+    image: oryd/hydra:v1.0.0-rc.11
+    depends_on:
+      - mysqld-hydra
+    environment:
+      - DSN=mysql://root:secret@tcp(mysqld-hydra:3306)/hydra?max_conns=20&max_idle_conns=4
+    command:
+      migrate sql -e --yes
+    restart: on-failure
+
+  hydra:
+    image: oryd/hydra:v1.0.0-rc.11
+    depends_on:
+      - hydra-migrate
+    ports:
+      # Public port
+      - "4444:4444"
+      # Admin port
+      - "4445:4445"
+      # Port for hydra token user
+      - "5555:5555"
+    command:
+      serve all --dangerous-force-http
+    environment:
+      - LOG_LEVEL=debug
+      - OAUTH2_ISSUER_URL=http://localhost:4444
+      - OAUTH2_CONSENT_URL=http://localhost:7070/consent
+      - OAUTH2_LOGIN_URL=http://localhost:7070/login
+      - DSN=mysql://root:secret@tcp(mysqld-hydra:3306)/hydra?max_conns=20&max_idle_conns=4
+      - SYSTEM_SECRET=youReallyNeedToChangeThis
+      - OAUTH2_SHARE_ERROR_DEBUG=1
+      - OIDC_SUBJECT_TYPES_SUPPORTED=public,pairwise
+      - OIDC_SUBJECT_TYPE_PAIRWISE_SALT=youReallyNeedToChangeThis
+      - CORS_ENABLED=true
+      # - OAUTH2_ACCESS_TOKEN_STRATEGY=jwt
+    restart: on-failure
+
+  mysqld-hydra:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=hydra
+
+  mysqld-whisper:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=whisper
+
+  prometheus:
+    image: abilioesteves/prometheus:1.0.0
+    ports:
+      - 9090:9090
+    environment:
+      - SCRAPE_INTERVAL=15s
+      - SCRAPE_TIMEOUT=10s
+      - STATIC_SCRAPE_TARGETS=whisper@whisper:7070/metrics
+
+  local:
+    image: busybox
+    depends_on:
+      - hydra
+      - mysqld-whisper
+
