@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/labbsr0x/goh/gohtypes"
 	"net/http"
+
+	"github.com/labbsr0x/goh/gohtypes"
 )
 
 // homeHandler renders the home page inserting the url to the whisper login page
@@ -53,7 +54,10 @@ func dashboardHandler(ctx *context) func(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
-		pageContent := dashboardPage{Username: token.Subject}
+		url, err := ctx.whisperClient.GetOAuth2LogoutURL()
+		gohtypes.PanicIfError("Unable to retrieve logout url", http.StatusInternalServerError, err)
+
+		pageContent := dashboardPage{Username: token.Subject, LogoutURL: url}
 		writePage(w, basePath, dashboardPageFile, pageContent)
 
 	}
