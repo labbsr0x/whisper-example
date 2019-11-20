@@ -17,3 +17,6 @@
 
 # VS Code
 .vscode/
+
+# binary
+whisper-examples
