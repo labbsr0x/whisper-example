@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/labbsr0x/whisper-client/client"
 	"net/http"
 
 	"github.com/labbsr0x/goh/gohtypes"
@@ -9,6 +10,16 @@ import (
 // homeHandler renders the home page inserting the url to the whisper login page
 func homeHandler(ctx *context) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		if cookie, err := r.Cookie("ACCESS_TOKEN"); err == nil {
+			token, err := ctx.whisperClient.IntrospectToken(cookie.Value)
+			gohtypes.PanicIfError("Unable to introspect token", http.StatusInternalServerError, err)
+
+			if token.Active {
+				http.Redirect(w, r, "/dashboard", http.StatusFound)
+				return
+			}
+		}
 
 		url, err := ctx.whisperClient.GetOAuth2LoginURL()
 		gohtypes.PanicIfError("Unable to load redirect url", http.StatusInternalServerError, err)
@@ -25,40 +36,56 @@ func homeHandler(ctx *context) func(w http.ResponseWriter, r *http.Request) {
 func dashboardHandler(ctx *context) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var tokenString string
+		var tokens client.Tokens
 
-		if cookie, err := r.Cookie("HAIL_HYDRA"); err != nil {
+		if cookie, err := r.Cookie("ACCESS_TOKEN"); err != nil {
 			code := r.URL.Query().Get("code")
 
 			if code == "" {
-				http.Redirect(w, r, "/", http.StatusUnauthorized)
+				http.Redirect(w, r, "/", http.StatusFound)
 				return
 			}
 
-			token, err := ctx.whisperClient.ExchangeCodeForToken(code)
+			tokens, err = ctx.whisperClient.ExchangeCodeForToken(code)
 			gohtypes.PanicIfError("Unable to exchange code for token", http.StatusInternalServerError, err)
 
-			tokenString = token.AccessToken
+			setHydraCookie(w, "ACCESS_TOKEN", tokens.AccessToken)
+			setHydraCookie(w, "OPENID_TOKEN", tokens.OpenIdToken)
+			setHydraCookie(w, "REFRESH_TOKEN", tokens.RefreshToken)
 
-			setHydraCookie(w, tokenString)
+			http.Redirect(w, r, "/dashboard", http.StatusFound) // redirect to self without the parameters
+			return
 		} else {
-			tokenString = cookie.Value
+			tokens.AccessToken = cookie.Value
+
+			cookie, _ = r.Cookie("OPENID_TOKEN")
+			tokens.OpenIdToken = cookie.Value
+
+			cookie, _ = r.Cookie("REFRESH_TOKEN")
+			tokens.RefreshToken = cookie.Value
 		}
 
-		token, err := ctx.whisperClient.IntrospectToken(tokenString)
+		token, err := ctx.whisperClient.IntrospectToken(tokens.AccessToken)
 		gohtypes.PanicIfError("Unable to introspect token", http.StatusInternalServerError, err)
 
 		if !token.Active {
-			removeHydraCookie(w)
-			http.Redirect(w, r, "/", http.StatusUnauthorized)
+			logoutHandler(w, r)
 			return
 		}
 
-		url, err := ctx.whisperClient.GetOAuth2LogoutURL()
+		url, err := ctx.whisperClient.GetOAuth2LogoutURL(tokens.OpenIdToken, "http://localhost:8001/logout")
 		gohtypes.PanicIfError("Unable to retrieve logout url", http.StatusInternalServerError, err)
 
 		pageContent := dashboardPage{Username: token.Subject, LogoutURL: url}
 		writePage(w, basePath, dashboardPageFile, pageContent)
-
 	}
+}
+
+// logoutHandler remove cookies and redirect to logout
+func logoutHandler (w http.ResponseWriter, r *http.Request) {
+	removeHydraCookie(w, "ACCESS_TOKEN")
+	removeHydraCookie(w, "OPENID_TOKEN")
+	removeHydraCookie(w, "REFRESH_TOKEN")
+
+	http.Redirect(w, r, "/", http.StatusFound)
 }
