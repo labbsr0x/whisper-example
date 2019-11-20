@@ -34,7 +34,7 @@ func getWhisperClient() *client.WhisperClient {
 	clientSecret := "secret"
 	scopes := []string{"openid offline"}
 	loginRedirectURI := "http://localhost:8001/dashboard"  // where it should go when finishing authentication
-	logoutRedirectURI := "http://localhost:8001/dashboard" // where it should go when finishing deauthentication
+	logoutRedirectURI := "http://localhost:8001/logout" // where it should go when finishing deauthentication
 	whisperURL := "http://localhost:7070"                  // whisper path for communication
 
 	return new(client.WhisperClient).InitFromParams(whisperURL, clientID, clientSecret, loginRedirectURI, logoutRedirectURI, scopes)
@@ -56,19 +56,19 @@ func getWhisperToken(whisper *client.WhisperClient) string {
 	return tokenString
 }
 
-// setHydraCookie set an cookie named HAIL_HYDRA
-func setHydraCookie(w http.ResponseWriter, value string) {
+// setHydraCookie set a simple cookie
+func setHydraCookie(w http.ResponseWriter, name, value string) {
 	http.SetCookie(w, &http.Cookie{
-		Name:    "HAIL_HYDRA",
+		Name:    name,
 		Value:   value,
 		Expires: time.Now().Add(7 * 24 * time.Hour),
 	})
 }
 
-// removeHydraCookie remove the cookie named HAIL_HYDRA
-func removeHydraCookie(w http.ResponseWriter) {
+// removeHydraCookie remove a cookie
+func removeHydraCookie(w http.ResponseWriter, name string) {
 	http.SetCookie(w, &http.Cookie{
-		Name:    "HAIL_HYDRA",
+		Name:    name,
 		Value:   "",
 		Expires: time.Unix(0, 0),
 	})
