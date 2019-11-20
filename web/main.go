@@ -24,6 +24,9 @@ func main() {
 	rtr.HandleFunc("/dashboard", dashboardHandler(&ctx)).
 		Methods("GET")
 
+	rtr.HandleFunc("/logout", logoutHandler).
+		Methods("GET")
+
 	srv := &http.Server{Handler: rtr, Addr: ":8001"}
 
 	err := srv.ListenAndServe()
