@@ -33,9 +33,9 @@ func getWhisperClient() *client.WhisperClient {
 	clientID := "client"
 	clientSecret := "secret"
 	scopes := []string{"openid offline"}
-	loginRedirectURI := "http://localhost:8001/dashboard"  // where it should go when finishing authentication
-	logoutRedirectURI := "http://localhost:8001/logout" // where it should go when finishing deauthentication
-	whisperURL := "http://localhost:7070"                  // whisper path for communication
+	loginRedirectURI := "http://localhost:8001/dashboard" // where it should go when finishing authentication
+	logoutRedirectURI := "http://localhost:8001/logout"   // where it should go when finishing logging out
+	whisperURL := "http://localhost:7070"                 // whisper path for communication
 
 	return new(client.WhisperClient).InitFromParams(whisperURL, clientID, clientSecret, loginRedirectURI, logoutRedirectURI, scopes)
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -31,4 +32,6 @@ func main() {
 
 	err := srv.ListenAndServe()
 	gohtypes.PanicIfError("Unable to listen and serve", http.StatusInternalServerError, err)
+
+	logrus.Info("Server started!")
 }

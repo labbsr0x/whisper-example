@@ -15,6 +15,6 @@ type homePage struct {
 
 // dashboardPage holds the info necessary for the dashboard page template
 type dashboardPage struct {
-	Username string
+	Username  string
 	LogoutURL string
 }
