@@ -82,7 +82,7 @@ func dashboardHandler(ctx *context) func(w http.ResponseWriter, r *http.Request)
 }
 
 // logoutHandler remove cookies and redirect to logout
-func logoutHandler (w http.ResponseWriter, r *http.Request) {
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	removeHydraCookie(w, "ACCESS_TOKEN")
 	removeHydraCookie(w, "OPENID_TOKEN")
 	removeHydraCookie(w, "REFRESH_TOKEN")
