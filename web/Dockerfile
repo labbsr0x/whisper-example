@@ -1,4 +1,4 @@
-FROM abilioesteves/gowebbuilder:v1.0.0 as builder
+FROM abilioesteves/gowebbuilder:1.2.0 as builder
 
 RUN mkdir /app
 WORKDIR /app
@@ -8,4 +8,4 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /web main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /web 
