@@ -54,17 +54,19 @@ services:
     command:
       serve all --dangerous-force-http
     environment:
-      - CORS_ENABLED=true
-      - CORS_ALLOWED_METHODS=POST,GET,PUT,DELETE
+      - SERVE_PUBLIC_CORS_ENABLED=true
+      - SERVE_ADMIN_CORS_ENABLED=true
+      - SERVE_PUBLIC_CORS_ALLOWED_METHODS=POST,GET,PUT,DELETE
+      - SERVE_ADMIN_CORS_ALLOWED_METHODS=POST,GET,PUT,DELETE
       - LOG_LEVEL=debug
-      - OAUTH2_SHARE_ERROR_DEBUG=1
-      - OAUTH2_ISSUER_URL=http://hydra:4444
-      - OAUTH2_CONSENT_URL=http://localhost:7070/consent
-      - OAUTH2_LOGIN_URL=http://localhost:7070/login
+      - OAUTH2_EXPOSE_INTERNAL_ERRORS=true
+      - URLS_SELF_ISSUER=http://hydra:4444
+      - URLS_CONSENT=http://localhost:7070/consent
+      - URLS_LOGIN=http://localhost:7070/login
       - DSN=mysql://root:secret@tcp(mysqld-hydra:3306)/hydra?max_conns=20&max_idle_conns=4
-      - SYSTEM_SECRET=youReallyNeedToChangeThis
-      - OIDC_SUBJECT_TYPES_SUPPORTED=public,pairwise
-      - OIDC_SUBJECT_TYPE_PAIRWISE_SALT=youReallyNeedToChangeThis
+      - SECRETS_SYSTEM=youReallyNeedToChangeThis
+      - OIDC_SUBJECT_IDENTIFIERS_ENABLED=public,pairwise
+      - OIDC_SUBJECT_IDENTIFIERS_PAIRWISE_SALT=youReallyNeedToChangeThis
     restart: on-failure
 
   hydra-migrate:
