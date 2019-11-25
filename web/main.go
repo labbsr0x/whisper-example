@@ -1,37 +1,49 @@
 package main
 
 import (
+	"github.com/labbsr0x/goh/gohtypes"
+	"github.com/labbsr0x/whisper-client/client"
 	"github.com/sirupsen/logrus"
 	"net/http"
-
-	"github.com/gorilla/mux"
-	"github.com/labbsr0x/goh/gohtypes"
+	"strings"
 )
 
 func main() {
-	whisperClient := getWhisperClient()
-	whisperToken := getWhisperToken(whisperClient)
-
-	ctx := context{
-		whisperClient: whisperClient,
-		whisperToken:  whisperToken,
+	// retrieve scopes
+	scopesArray := strings.Split(scopes, ",")
+	for _, scope := range scopesArray {
+		scope = strings.Trim(scope, " ")
 	}
 
-	rtr := mux.NewRouter()
+	// Initiate the whisper client
+	wc := new(client.WhisperClient).
+		InitFromParams(whisperURL, clientID, clientSecret, loginRedirectURI, logoutRedirectURI, scopesArray)
 
-	rtr.HandleFunc("/", homeHandler(&ctx)).
-		Methods("GET")
+	// Register itself in hydra
+	token, err := wc.CheckCredentials()
+	if err != nil {
+		panic("unable to connect w")
+	}
 
-	rtr.HandleFunc("/dashboard", dashboardHandler(&ctx)).
-		Methods("GET")
+	// Add whisper information to context for handlers to use whisper
+	ctx := context{
+		whisper: whisper{
+			client: wc,
+			oauthToken: token,
+		},
+	}
 
-	rtr.HandleFunc("/logout", logoutHandler).
-		Methods("GET")
+	// Create the necessary routes of the application
+	rtr := createRoutes(&ctx)
 
-	srv := &http.Server{Handler: rtr, Addr: ":8001"}
+	// Configure server
+	srv := &http.Server{
+		Handler: rtr,
+		Addr: ":8001",
+	}
 
-	err := srv.ListenAndServe()
+	// Start server
+	err = srv.ListenAndServe()
 	gohtypes.PanicIfError("Unable to listen and serve", http.StatusInternalServerError, err)
-
 	logrus.Info("Server started!")
 }

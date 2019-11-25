@@ -5,7 +5,7 @@ services:
 
   web:
     build: .
-#    image: labbsr0x/whisper-example/web:latest
+    #    image: labbsr0x/whisper-example/web:latest
     depends_on:
       - whisper
       - hydra

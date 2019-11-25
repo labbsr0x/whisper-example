@@ -7,4 +7,5 @@ require (
 	github.com/labbsr0x/goh v1.0.1
 	github.com/labbsr0x/whisper-client v0.6.0
 	github.com/sirupsen/logrus v1.4.2
+	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 )
