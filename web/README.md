@@ -10,8 +10,11 @@ This is a small example on how to use whisper-client on a web application.
     sudo echo "127.0.0.1 hydra" >> /etc/hosts
     ```
 
-2. Change the whisper path in the code;
+2. Run the necessary applications;
 
+    ```bash
+    docker-compose up -d local
+    ```
 3. Run the commands below;
 
     ```bash
