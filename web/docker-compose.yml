@@ -5,6 +5,7 @@ services:
 
   web:
     build: .
+    image: labbsr0x/whisper-web-app-example
     depends_on:
       - whisper
       - hydra
