@@ -5,12 +5,14 @@ services:
 
   web:
     build: .
-    #    image: labbsr0x/whisper-example/web:latest
     depends_on:
       - whisper
       - hydra
     ports:
       - "8001:8001"
+    environment:
+      - SELF_URL=http://localhost:8001
+      - WHISPER_URL=http://whisper:7070
     restart: on-failure
 
   whisper:
@@ -100,4 +102,3 @@ services:
       - hydra
       - mysqld-whisper
       - whisper
-
