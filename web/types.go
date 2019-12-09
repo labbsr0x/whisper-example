@@ -1,11 +1,19 @@
 package main
 
-import "github.com/labbsr0x/whisper-client/client"
+import (
+	"github.com/labbsr0x/whisper-client/client"
+	"golang.org/x/oauth2"
+)
+
+// whisper holds the whisper connection and token
+type whisper struct {
+	client *client.WhisperClient
+	oauthToken *oauth2.Token
+}
 
 // context holds the context of the application
 type context struct {
-	whisperClient *client.WhisperClient
-	whisperToken  string
+	whisper whisper
 }
 
 // homePage holds the info necessary for the home page template

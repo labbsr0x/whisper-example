@@ -7,19 +7,12 @@ import (
 	"time"
 
 	"github.com/labbsr0x/goh/gohtypes"
-	"github.com/labbsr0x/whisper-client/client"
-)
-
-const (
-	basePath          = "./assets/html/"
-	homePageFile      = "home.html"
-	dashboardPageFile = "dashboard.html"
 )
 
 // writePage loads a page using templates
-func writePage(w http.ResponseWriter, basePath, pageName string, page interface{}) {
+func writePage(w http.ResponseWriter, pageName string, page interface{}) {
 	buf := new(bytes.Buffer)
-	content := template.Must(template.ParseFiles(basePath + pageName))
+	content := template.Must(template.ParseFiles("./assets/html/" + pageName + ".html"))
 
 	err := content.Execute(buf, page)
 	gohtypes.PanicIfError("Unable to load page", http.StatusInternalServerError, err)
@@ -28,48 +21,24 @@ func writePage(w http.ResponseWriter, basePath, pageName string, page interface{
 	gohtypes.PanicIfError("Unable to render", http.StatusInternalServerError, err)
 }
 
-// getWhisperClient initiate the whisper client
-func getWhisperClient() *client.WhisperClient {
-	clientID := "client"
-	clientSecret := "secret"
-	scopes := []string{"openid offline"}
-	loginRedirectURI := "http://localhost:8001/dashboard" // where it should go when finishing authentication
-	logoutRedirectURI := "http://localhost:8001/logout"   // where it should go when finishing logging out
-	whisperURL := "http://localhost:7070"                 // whisper path for communication
+// setCookie set a simple cookie that expires in a week
+func setCookie(w http.ResponseWriter, name, value string) {
+	oneWeekFromNow := time.Now().Add(7 * 24 * time.Hour)
 
-	return new(client.WhisperClient).InitFromParams(whisperURL, clientID, clientSecret, loginRedirectURI, logoutRedirectURI, scopes)
-}
-
-// getWhisperToken retrieve token to be used for authentication inside whisper
-func getWhisperToken(whisper *client.WhisperClient) string {
-	token, err := whisper.CheckCredentials()
-	if err != nil {
-		panic("Unable to connect to whisper client")
-	}
-
-	tokenString := whisper.GetTokenAsJSONStr(token)
-
-	if tokenString == "" {
-		panic("Unable to extract token")
-	}
-
-	return tokenString
-}
-
-// setHydraCookie set a simple cookie
-func setHydraCookie(w http.ResponseWriter, name, value string) {
 	http.SetCookie(w, &http.Cookie{
 		Name:    name,
 		Value:   value,
-		Expires: time.Now().Add(7 * 24 * time.Hour),
+		Expires: oneWeekFromNow,
 	})
 }
 
-// removeHydraCookie remove a cookie
-func removeHydraCookie(w http.ResponseWriter, name string) {
+// unsetCookie overwrite a cookie and make it expired
+func unsetCookie(w http.ResponseWriter, name string) {
+	past := time.Unix(0, 0)
+
 	http.SetCookie(w, &http.Cookie{
 		Name:    name,
 		Value:   "",
-		Expires: time.Unix(0, 0),
+		Expires: past,
 	})
 }
