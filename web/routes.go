@@ -4,13 +4,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// createRoutes set the routes the application need. That is, it will create the suggested web hooks for whisper and the
-// routes of the main application. The suggest web hooks for whisper are to separate some recommended operation from the
-// logic of your application.
+// createRoutes set the routes the application need. That is, it will create the suggested webhooks for whisper and the routes of the main applicatio
 func createRoutes(ctx *context) *mux.Router {
 	rtr := mux.NewRouter()
 
-	// Whisper necessary web hooks
+	// Whisper necessary webhooks
 	rtr.HandleFunc(postLoginPath, postLoginHandler(ctx, "/dashboard")).
 		Methods("GET")
 

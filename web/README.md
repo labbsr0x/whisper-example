@@ -1,4 +1,5 @@
 # Web Example
+[![Docker Pulls](https://img.shields.io/docker/pulls/labbsr0x/whisper-web-app-example.svg)](https://hub.docker.com/r/labbsr0x/whisper-web-app-example)
 
 This is a small example of how to use whisper-client on a web application. It is as simple as a home page and a dashboard page.
 
@@ -44,5 +45,5 @@ docker-compose up -d
 ## Observations
 
 + Whisper Helper only shows a recommended way to use whisper client APIs;
-+ Whisper Helper provides a recommended routes for post-login and post-logout and the respective haldlers;
++ Whisper Helper provides a recommended routes for post-login and post-logout and the respective handlers;
 + It is necessary to have a post logout URL to remove the cookies. Whisper Logout Link only erase the session cookies on the server and the cookies on the user browser still valid;

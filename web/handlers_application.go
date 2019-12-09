@@ -9,8 +9,8 @@ import (
 
 
 // homeHandler create a function to mount the home page. It should be available only to unidentified users, that is,
-// users that are not logged. If there is a user logged, it will redirect to dashboard, the default home for logged
-// users and if there isn't a user logged, it will retrieve a login url to be used in the page and mount the page
+// users that are not logged in. If there is a logged in user, it will redirect to the dashboard, the default home for logged in users
+// and if there isn't a user logged in, it will retrieve a login url to be used in the page and mount the page
 func homeHandler(ctx *context) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Verify if there is a user logged. If there is, it should be able to retrieve valid tokens from the request
@@ -33,7 +33,7 @@ func homeHandler(ctx *context) func(w http.ResponseWriter, r *http.Request) {
 }
 
 // dashboardHandler create a function to mount the dashboard page. It should be available only to identified users, that
-// is, logged users. If you are not logged, it will redirect to home page, the default home for unidentified users. It
+// is, logged in users. If you are not logged, it will redirect to home page, the default home for unidentified users. It
 // will panic if it is unable to connect to hydra.
 func dashboardHandler(ctx *context) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
