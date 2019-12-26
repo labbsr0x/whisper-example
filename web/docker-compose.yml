@@ -30,8 +30,8 @@ services:
       - WHISPER_HYDRA_PUBLIC_URL=http://hydra:4444/
       - WHISPER_SECRET_KEY=uhSunsodnsuBsdjsbds
       - WHISPER_DATABASE_URL=mysql://root:secret@tcp(mysqld-whisper:3306)/whisper?charset=utf8mb4&parseTime=True&loc=Local
-      - WHISPER_MAIL_USER=628ecbe7f53ac2
-      - WHISPER_MAIL_PASSWORD=457cd26e7890c5
+      - WHISPER_MAIL_USER=cbe9f8fa375e55
+      - WHISPER_MAIL_PASSWORD=3071e9aaa1c128
       - WHISPER_MAIL_HOST=smtp.mailtrap.io
       - WHISPER_MAIL_PORT=2525
       - WHISPER_PUBLIC_URL=http://localhost:7070

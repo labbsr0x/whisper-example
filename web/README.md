@@ -3,6 +3,8 @@
 
 This is a small example of how to use whisper-client on a web application. It is as simple as a home page and a dashboard page.
 
+![whisper web](https://raw.githubusercontent.com/labbsr0x/whisper/assets/whisper.gif "preview")
+
 ## Usage (Locally)
 
 Run the docker stack.

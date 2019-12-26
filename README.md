@@ -2,6 +2,8 @@
 This repository holds usage examples of [Whisper's](https://github.com/labbsr0x/whisper) features and capabilities.
 
 # Web
+![whisper web](https://raw.githubusercontent.com/labbsr0x/whisper/assets/whisper.gif "preview")
+
 At the [web](https://github.com/labbsr0x/whisper-examples/tree/master/web) folder, you'll find an Web App example written in Go that uses Whisper to handle Identification and Authorization.
 
 # CLI (TODO)
