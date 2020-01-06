@@ -10,6 +10,11 @@ import (
 )
 
 func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			os.Exit(1);
+		}
+	}()
 	// retrieve urls
 	if value := os.Getenv("SELF_URL"); value != "" {
 		selfURL = value

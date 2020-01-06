@@ -17,7 +17,16 @@ func postLoginHandler(ctx *context, redirectTo string) func(w http.ResponseWrite
 		}
 
 		// exchange the code retrieved by tokens that identify the user and more
-		tokens, err := ctx.whisper.client.ExchangeCodeForToken(code)
+		codeVerifierCookie, err := r.Cookie("CODE_VERIFIER")
+		if err != nil {
+			return
+		}
+		stateCookie, err := r.Cookie("STATE")
+		if err != nil {
+			return
+		}
+
+		tokens, err := ctx.whisper.client.ExchangeCodeForToken(code, codeVerifierCookie.Value, stateCookie.Value)
 		gohtypes.PanicIfError("Unable to exchange code for token", http.StatusInternalServerError, err)
 
 		// set all information related to user identity in cookies
