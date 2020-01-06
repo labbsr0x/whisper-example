@@ -21,8 +21,10 @@ func homeHandler(ctx *context) func(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Mount the home page with the login url that connects with whisper
-		url, err := ctx.whisper.client.GetOAuth2LoginURL()
-		gohtypes.PanicIfError("Unable to load redirect url", http.StatusInternalServerError, err)
+		url, codeVerifier, state := ctx.whisper.client.GetOAuth2LoginParams()
+
+		setCookie(w, "CODE_VERIFIER", codeVerifier)
+		setCookie(w, "STATE", state)
 
 		pageContent := homePage{
 			LoginURL: url,
